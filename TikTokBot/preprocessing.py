@@ -63,7 +63,7 @@ def common_filter_rules(tag):
     """
     patterns = "(f+y+p*)+"
     patterns += "|(fory)"
-    patterns += "|(vira+l)"
+    patterns += "|(v+i+r+a+l+)"
     patterns = re.compile(patterns)
     return len(patterns.findall(tag.lower())) == 0 # If any matches exist, ditch the tag
 
