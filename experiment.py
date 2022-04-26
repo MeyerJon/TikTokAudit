@@ -31,11 +31,14 @@ if __name__ == "__main__":
     to_skip = get_skippable_ids()
 
     #bot = setup_puppet(DRIVER_PATH, "./users/creds.json", "TTDelver")
-    bot = manual_setup(login=False)
+    #bot.login_tiktok()
+    bot = manual_setup(login=True)
     time.sleep(3)
 
+    time.sleep(5)
+
     # Tags to collect
-    tags = ["makeeuropegreatagain", "wlm"]
+    tags = []
     try:
        for t in tags:
             print("Browsing tag:", t)
@@ -46,7 +49,7 @@ if __name__ == "__main__":
         raise e
 
     # Creators to collect
-    creators = ["blonde_raven"]
+    creators = []
     try:
        for c in creators:
             print("Browsing creator:", c)

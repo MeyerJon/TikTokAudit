@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from TikTokBot.bot import Bot
+import json
 
 
 ### Public functionality ###
@@ -92,6 +93,6 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     # Make bot & configure
     bot = Bot(driver)
     bot.set_output_file(outf)
-    bot.set_credentials(cred_info["email"], cred_info["password"])
+    bot.set_credentials(cred_info["email"], cred_info["password"], platform=cred_info["platform"])
 
     return bot

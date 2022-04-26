@@ -78,11 +78,11 @@ class Bot:
         """
         self._outf = fname
 
-    def set_credentials(self, email, password):
+    def set_credentials(self, email, password, platform="Google"):
         """
             Sets credentials the bot should use for its Google account.
         """
-        self.google_creds = {"email": email, "password": password}
+        self.login_creds = {"email": email, "password": password, "platform": platform}
 
 
     ### Locating elements ###
@@ -479,7 +479,7 @@ class Bot:
         """
         creds = None
         try:
-            creds = self.google_creds
+            creds = self.login_creds
         except AttributeError as e:
             self.logger.error("Could not log in: no credentials set.")
             raise Exception("No Google credentials set.")
@@ -510,27 +510,10 @@ class Bot:
         nxt_btn = self._wait_el_by_xpath("/html/body/div[1]/div[1]/div[2]/div/div[2]/div/div/div[2]/div/div[2]/div/div[1]/div/div/button")
         nxt_btn.click()
 
-    def login_tiktok(self):
+    def _login_via_google(self, creds):
         """
-            Logs into tiktok using Google credentials.
+            Assuming the login popup is opened, continues by logging in via Google credentials
         """
-        creds = None
-        try:
-            creds = self.google_creds
-        except AttributeError as e:
-            self.logger.error("Could not log in: no credentials set.")
-            raise Exception("No Google credentials set.")
-
-        # Go to TikTok
-        self._driver.get("http://tiktok.com")
-        random_wait(3)
-
-        self.close_cookie_banner()
-
-        # Open the login popup
-        login_btn = self._wait_el_by_xpath("/html/body/div[2]/div[1]/div/div[2]/button")
-        login_btn.click()
-        random_wait(2.0)
 
         # 'Continue with Google' button
         # Popup located in a different iframe
@@ -562,6 +545,65 @@ class Bot:
 
         # Popup windows are automatically closed, switch back to be safe
         self._driver.switch_to.window(self._driver.window_handles[0])
+
+    def _login_via_twitter(self, creds):
+        """
+            Assuming the login popup is opened, continues by logging in via Twitter credentials
+        """
+        # 'Continue with Twitter' button
+        # Popup located in a different iframe
+        login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
+        twitter_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[2]/div[1]/div/div/div[4]", time=8)
+        if twitter_opt_btn is None:
+            # Fallback in case the layout changes but the text on the button remains the same
+            twitter_opt_btn = self._wait_el_by_xpath('//div[contains(text(), "Continue with Twitter")]', time=8)
+        twitter_opt_btn.click()
+        random_wait(1.0)
+
+        # Popup window is now open
+        self._driver.switch_to.window(self._driver.window_handles[-1]) # Last opened window is the Twitter login screen
+        # Enter email
+        email_field = self._wait_el_by_xpath("/html/body/div[2]/div/form/fieldset[1]/div[1]/input")
+        emulate_keystrokes(email_field, creds["email"])
+
+        # Enter password
+        pw_field = self._wait_el_by_xpath("/html/body/div[2]/div/form/fieldset[1]/div[2]/input")
+        emulate_keystrokes(pw_field, creds["password"])
+
+        nxt_btn = self._wait_el_by_xpath("/html/body/div[2]/div/form/fieldset[2]/input[1]")
+        nxt_btn.click()
+        random_wait(3.0)
+
+        # Popup windows are automatically closed, switch back to be safe
+        self._driver.switch_to.window(self._driver.window_handles[0])
+
+
+    def login_tiktok(self):
+        """
+            Logs into tiktok using Google credentials.
+        """
+        creds = None
+        try:
+            creds = self.login_creds
+        except AttributeError as e:
+            self.logger.error("Could not log in: no credentials set.")
+            raise Exception("No credentials set for bot.")
+
+        # Go to TikTok
+        self._driver.get("http://tiktok.com")
+        random_wait(3)
+
+        self.close_cookie_banner()
+
+        # Open the login popup
+        login_btn = self._wait_el_by_xpath("/html/body/div[2]/div[1]/div/div[2]/button")
+        login_btn.click()
+        random_wait(2.0)
+
+        if creds["platform"] == "Google":
+            self._login_via_google(creds)
+        elif creds["platform"] == "Twitter":
+            self._login_via_twitter(creds)
 
     def anon_run(self, n=10, to_skip=None):
         """
