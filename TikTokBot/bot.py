@@ -64,6 +64,7 @@ class Bot:
         self._driver = driver
         self._wait = WebDriverWait(self._driver, 5) # Waits for max. 5 seconds
         self._outf = output_file
+        self._data_dir = ""
         self.logger = logging.getLogger('Bot')
         self.logger.setLevel(20)
 
@@ -77,6 +78,12 @@ class Bot:
             Sets the default output file for storing collected VideoInfo
         """
         self._outf = fname
+    
+    def set_data_dir(self, ddir):
+        """
+            Sets the default data directory for other I/O
+        """
+        self._data_dir = ddir
 
     def set_credentials(self, email, password, platform="Google"):
         """
@@ -116,7 +123,14 @@ class Bot:
         """
             Returns the video player WebElement (or None if not found after max wait)
         """
-        return self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[1]/div[2]/div[1]/div/video")
+        # Try finding the element by tag
+        el = None
+        try:
+            el = WebDriverWait(self._driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, "video")))
+        except TimeoutException as e:
+            # Fallback, assumes a video is in 'fullscreen/focus' view, get element by XPath
+            el = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[1]/div[2]/div[1]/div/video", time=3)
+        return el
 
     def get_video_id(self):
         """
@@ -173,6 +187,9 @@ class Bot:
             self.logger.info("Could not locate description element (%s)", self._driver.current_url)
 
     def get_video_duration(self):
+        """
+            Returns video duration in seconds (float).
+        """
         try:
             vid_el = self.get_video_element()
             duration = vid_el.get_property("duration")
@@ -580,7 +597,7 @@ class Bot:
 
     def login_tiktok(self):
         """
-            Logs into tiktok using Google credentials.
+            Logs into Tiktok. Only works if credentials have been set.
         """
         creds = None
         try:

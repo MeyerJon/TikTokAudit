@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from TikTokBot.bot import Bot
+from TikTokBot.puppets import PuppetPassive, PuppetCasual, PuppetActive, PuppetBase
 import json
 
 
@@ -91,8 +92,9 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     driver = webdriver.Chrome(service=driver_service, options=options)
 
     # Make bot & configure
-    bot = Bot(driver)
-    bot.set_output_file(outf)
-    bot.set_credentials(cred_info["email"], cred_info["password"], platform=cred_info["platform"])
+    #bot = Bot(driver)
+    puppet = PuppetBase(driver, puppet_id, outf)
+    puppet.set_data_dir(data_dir)
+    puppet.set_credentials(cred_info["email"], cred_info["password"], platform=cred_info["platform"])
 
-    return bot
+    return puppet

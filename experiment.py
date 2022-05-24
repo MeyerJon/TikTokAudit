@@ -5,6 +5,7 @@ import logging, time
 
 
 DRIVER_PATH = "./drivers/chromedriver"
+CREDS_FILE = "./users/creds.json"
 
 
 def get_skippable_ids(fname="./to-skip.csv"):
@@ -23,22 +24,7 @@ def manual_setup(login=True):
     if login: bot.login_tiktok()
     return bot
 
-if __name__ == "__main__":
-
-    logging.basicConfig(filename="./logs", filemode='w', format='%(asctime)s - [%(levelname)s] %(message)s', datefmt='%H:%M:%S')
-
-    # Read video IDs to be skipped
-    to_skip = get_skippable_ids()
-
-    #bot = setup_puppet(DRIVER_PATH, "./users/creds.json", "TTDelver")
-    #bot.login_tiktok()
-    bot = manual_setup(login=True)
-    time.sleep(3)
-
-    time.sleep(5)
-
-    # Tags to collect
-    tags = []
+def collect_tags(bot, tags):
     try:
        for t in tags:
             print("Browsing tag:", t)
@@ -48,8 +34,7 @@ if __name__ == "__main__":
         print("Exception occurred:")
         raise e
 
-    # Creators to collect
-    creators = []
+def collect_creators(bot, creators):
     try:
        for c in creators:
             print("Browsing creator:", c)
@@ -58,3 +43,19 @@ if __name__ == "__main__":
     except Exception as e:
         print("Exception occurred:")
         raise e
+
+if __name__ == "__main__":
+
+    logging.basicConfig(filename="./logs", filemode='w', format='%(asctime)s - [%(levelname)s] %(message)s', datefmt='%H:%M:%S')
+
+    # Read video IDs to be skipped
+    to_skip = get_skippable_ids()
+
+    #bot = setup_puppet(DRIVER_PATH, "./users/creds.json", "TTDelver")
+    #bot.login_tiktok()
+    #bot = manual_setup(login=True)
+    #time.sleep(3)
+
+    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
+    bot.pre_run_routine()    
+   

@@ -60,7 +60,7 @@ Note: Tags marked with ! are no longer available on TikTok
   
   To check:
   - cult45 (trumpsim ref?)
-
+  - 45goat 
   
 
 [USERS]
@@ -80,9 +80,17 @@ Note: Tags marked with ! are no longer available on TikTok
   - christistheonlyrealway
   - worriedeuropeancitizens
   - american_radical
+  - jynavesia
+  - miss.mendoza
   
   To check:
   - libyan_nationalist
+  - tate.intellectual
+  - joshstone1973
+  - lbnntv (Limitless Belief News; seems like a sensationalised, right-wing-oriented channel)
+  - aprilseekstruth (conspiracy content?)
+  - believeroftruth13 (conspiracy content?)
+  - scribewarning (conspiracy channel)
 
 
 [SOUNDS]
@@ -102,6 +110,7 @@ Additional notes:
         - Parenthood (mostly mothers, often mentioned in user bio)
     - Associated with political content (so conservative tags can also bring us here)
     - Vaccine often refered to as the 'jab' - might help identify actual antivax content
+    - TikTok seems to add banners on various videos, but it doesn't seem very consistent
     
 [TAGS]
   - pureblood (mostly Harry Potter content, but also used by unvaccinated people as a moniker)
@@ -129,6 +138,9 @@ Additional notes:
   - naturalimmunity (mixed sentiment about this one)
   - medicalfreedom
   - mediacontrol (often added to the mix by antivaxers)
+  - plandimec (not a typo, the correct spelling has been banned by tiktok)
+  - boostofhope (doesn't load properly, seems like it might be a keyword)
+  - nurembergcode
 
 [USERS]
     - pennycandy8787 
@@ -149,6 +161,18 @@ Additional notes:
     - iwant2makeyouthink
     - conservative_jas
     - evalicious_8910
+    - jynavesia
+    - keara.wwg1wga (general conspiracy content, aka kearaclampitt)
+    - wade1121 (mostly american politics with some antivax content mixed in)
+    - beautifullybroken75
+    - nu4seint3grity
+    - latinoheat75
+    - aprilseekstruth
+    - muricawoo
+    - thomasbrower
+    - stephenburleson71
+    - taylor_smith21
+    - fitpatriot78
     
 
 [SOUNDS]
@@ -159,3 +183,5 @@ Additional notes:
     - original sound - Original Mendoza (https://www.tiktok.com/music/original-sound-7023850987009870597, ~1K videos)
     - In God We Trust - Tom MacDonald & Adam Calhoun & Struggle Jennings (conspiracy-related content)
     - original sound - Follow Spotify @ PiNK WRAWRII (https://www.tiktok.com/music/original-sound-7055715194877578031)
+    - original sound - Tonya Wade (https://www.tiktok.com/music/original-sound-7069609331670403883)
+    - original sound - Bobby (https://www.tiktok.com/music/original-sound-7094988250552535850)
