@@ -1,5 +1,5 @@
-from TikTokBot import setup_anon_bot, setup_puppet
-from TikTokBot.bot import Bot
+from TikTokBot import setup_anon_puppet, setup_puppet
+from TikTokBot.puppets import PuppetBase
 from selenium import webdriver
 import logging, time
 
@@ -16,10 +16,10 @@ def get_skippable_ids(fname="./to-skip.csv"):
 
 def manual_setup(login=True):
     """
-        Returns TTDelver bot (anon session)
+        Returns TTDelver puppet (anon session)
         mostly for experimental/testing purposes
     """
-    bot = setup_anon_bot(DRIVER_PATH)
+    bot = setup_anon_puppet(DRIVER_PATH, profile_file="./profile_AV.json")
     bot.set_credentials("hku63202@mzico.com", "TTDelver PW")
     if login: bot.login_tiktok()
     return bot
@@ -48,14 +48,10 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename="./logs", filemode='w', format='%(asctime)s - [%(levelname)s] %(message)s', datefmt='%H:%M:%S')
 
-    # Read video IDs to be skipped
-    to_skip = get_skippable_ids()
+    bot = manual_setup(login=True)
+    time.sleep(3)
+    bot.browse_fyp(interact=False)
 
-    #bot = setup_puppet(DRIVER_PATH, "./users/creds.json", "TTDelver")
-    #bot.login_tiktok()
-    #bot = manual_setup(login=True)
-    #time.sleep(3)
-
-    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
-    bot.pre_run_routine()    
+    #bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
+    #bot.pre_run_routine()    
    

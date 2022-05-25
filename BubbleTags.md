@@ -110,11 +110,12 @@ Additional notes:
         - Parenthood (mostly mothers, often mentioned in user bio)
     - Associated with political content (so conservative tags can also bring us here)
     - Vaccine often refered to as the 'jab' - might help identify actual antivax content
-    - TikTok seems to add banners on various videos, but it doesn't seem very consistent
+    - TikTok seems to add disclaimer banners on various videos, but it doesn't seem very consistent
+    - Some of the tags below might have been banned by now (e.g. antivax)
     
 [TAGS]
   - pureblood (mostly Harry Potter content, but also used by unvaccinated people as a moniker)
-  - antivax(x) (more often used ironically)
+  - antivax(x) (more often used ironically) ('antivax' has been banned)
   - antimask
   - avax (mostly used by crypto/NFT bros)
   - nopoke

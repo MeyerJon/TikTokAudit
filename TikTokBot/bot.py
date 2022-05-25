@@ -197,6 +197,17 @@ class Bot:
         except Exception as e:
             self.logger.warning("Could not fetch video duration (%s)", self._driver.current_url)
 
+    def get_video_date(self):
+        """
+            Returns date the current post was made (if possible)
+            [NOT IMPLEMENTED - TikTok doesn't show dates on recent uploads]
+        """
+        # NOTE: This doesn't properly work since recent videos just say things like "2d ago"/"5h ago"
+        # TODO: Maybe manually infer the date? Probably not too useful to spend time on though
+        try:
+            date_el = None
+        except Exception as e:
+            self.logger.warning("Could not find video date (%s)", self._driver.current_url)
 
     ### Handling anomalies ###
     def close_cookie_banner(self, accept=False):
@@ -467,6 +478,12 @@ class Bot:
             Assuming a tiktok is being viewed, follows the creator.
         """
         follow_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/button")
+        if follow_btn is None:
+            # Fallback: look for a button with some 'StyledFollowButton' class
+            follow_btn = WebDriverWait(self._driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[class~="StyledFollowButton"]')))
+        if follow_btn is None:
+            self.logger.error("Could not locate follow button (%s)", self._driver.current_url)
+            return
         # Check if creator already followed by
         following = "Following" == follow_btn.text
         if follow != following:
@@ -615,7 +632,7 @@ class Bot:
         # Open the login popup
         login_btn = self._wait_el_by_xpath("/html/body/div[2]/div[1]/div/div[2]/button")
         login_btn.click()
-        random_wait(2.0)
+        random_wait(2.0, min_t=0.5)
 
         if creds["platform"] == "Google":
             self._login_via_google(creds)
@@ -633,7 +650,6 @@ class Bot:
         # Config
         max_watch_time = 6 # in seconds
 
-        # Data collection
         self._browse(base_url="http://tiktok.com", first_xpath="/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[1]/div",
                      n=n, to_skip=to_skip, max_watch_time=max_watch_time)
         

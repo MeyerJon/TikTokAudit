@@ -37,13 +37,14 @@ def get_chrome_options(user_dir="./users/default", incognito=False):
 
     return options
 
-def setup_anon_bot(driver_path, **kwargs):
+def setup_anon_puppet(driver_path, **kwargs):
     """
         Opens an anonymous browser instance and returns a configured bot.
     """
 
     data_dir = kwargs.get("data_dir", "./data")
     outf = kwargs.get("output_file", f"{data_dir}/anon.csv")
+    profile_f = kwargs.get("profile_file", f"profile_anon.json")
 
     # Get session options
     driver_service = Service(driver_path)
@@ -53,10 +54,9 @@ def setup_anon_bot(driver_path, **kwargs):
     driver = webdriver.Chrome(service=driver_service, options=options)
 
     # Make bot & set output file
-    bot = Bot(driver)
-    bot.set_output_file(outf)
-
-    return bot
+    puppet = PuppetBase(driver, "ANON", profile_file=profile_f, output_file=outf)
+    puppet.set_output_file(outf)
+    return puppet
 
 def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     """
@@ -92,8 +92,7 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     driver = webdriver.Chrome(service=driver_service, options=options)
 
     # Make bot & configure
-    #bot = Bot(driver)
-    puppet = PuppetBase(driver, puppet_id, outf)
+    puppet = PuppetBase(driver, puppet_id, output_file=outf)
     puppet.set_data_dir(data_dir)
     puppet.set_credentials(cred_info["email"], cred_info["password"], platform=cred_info["platform"])
 
