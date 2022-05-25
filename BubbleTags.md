@@ -60,7 +60,8 @@ Note: Tags marked with ! are no longer available on TikTok
   
   To check:
   - cult45 (trumpsim ref?)
-  - 45goat 
+  - 45goat
+  - putmefirst
   
 
 [USERS]
@@ -116,6 +117,7 @@ Additional notes:
 [TAGS]
   - pureblood (mostly Harry Potter content, but also used by unvaccinated people as a moniker)
   - antivax(x) (more often used ironically) ('antivax' has been banned)
+  - antivaxer (also with 2 x's; more often used ironically)
   - antimask
   - avax (mostly used by crypto/NFT bros)
   - nopoke

@@ -1,7 +1,7 @@
 """
     Specific puppet implementations.
 """
-import random, time, json, logging
+import random, time, json
 from TikTokBot.bot import Bot
 from TikTokBot.utils import random_wait
 
@@ -19,7 +19,7 @@ class PuppetBase(Bot):
         # Behavior-related parameters
         self.relevance_like = 0
         self.relevance_follow = 0
-        self.watch_duration = 1 # Fraction of TikTok duration
+        self.watch_duration = 0.2 # Fraction of TikTok duration
 
         # Interest data
         profile_file = profile_file or f"./profile_{puppet_id[:2]}.json"
@@ -31,6 +31,9 @@ class PuppetBase(Bot):
         self.relevant_tags = self._profile['tags']
         self.relevant_creators = set(self._profile['creators'])
         self.relevant_sounds = set(self._profile['sounds'])
+
+        # Log creation of puppet
+        self.logger.info("Created puppet %s", self._id)
         
 
     # Config
@@ -58,10 +61,10 @@ class PuppetBase(Bot):
         self.relevance_follow = thresh
 
     def _vid_relevance(self, vidinfo):
-        r = sum([self.relevant_tags.get(t, 0) for t in vidinfo.tags])
-        r += int(vidinfo.creator in self.relevant_creators)
+        r = sum([self.relevant_tags.get(t, 0) for t in vidinfo.tags])  # Score of tags
+        r += (int(vidinfo.creator in self.relevant_creators) * 10)     # Flagged creators count for 10
         if vidinfo.sound is not None:
-            r += int(vidinfo.sound in self.relevant_sounds)
+            r += int(vidinfo.sound in self.relevant_sounds)            # Flagged sounds count too
         return r
 
     def video_relevant(self, vidinfo):
@@ -69,20 +72,20 @@ class PuppetBase(Bot):
             For a given VideoInfo object, returns true
             if the video is considered relevant enough for the puppet to like.
         """ 
-        return _vid_relevance >= self.relevance_like
+        return self._vid_relevance(vidinfo) >= self.relevance_like
 
     def creator_relevant(self, creator):
         """
             For a given creator, returns true
             if the given creator is considered relevant enough for the puppet to follow.
         """
-        return _vid_relevance >= self.relevance_follow
+        return self._vid_relevance(vidinfo) >= self.relevance_follow
 
 
     # Behaviors
-    def pre_run_routine(self, k=3):
+    def pre_run_routine(self, k=3, likes=True):
         """
-            Watches a few videos from a predefined set.
+            Watches and likes a number of videos from a predefined set.
         """
         fname = f"./prime_{self._id[:2]}.csv"
         urls = list()
@@ -90,13 +93,13 @@ class PuppetBase(Bot):
             urls = f.readlines()
         
         picks = random.sample(urls, k=k)
-        watchtime = 2 # Fraction of total time
+        watchtime = 0.2 # Fraction of total time
 
         for p in picks:
 
             self._driver.get(p)
             # Check if video available
-            error_msg = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div/p[1]")
+            error_msg = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div/p[1]", verbose=False)
             if error_msg is not None:
                 if "unavailable" in error_msg.text.lower():
                     # Append another pick to try instead & continue
@@ -108,6 +111,9 @@ class PuppetBase(Bot):
             while vid_dur is None:
                 vid_dur = self.get_video_duration()
             time.sleep(vid_dur * watchtime)
+
+            if likes:
+                self.like_video(like=True)
 
             random_wait(1) # Random wait before moving on
 
@@ -207,7 +213,14 @@ class PuppetBase(Bot):
         - Occassionally likes posts
 """
 class PuppetPassive(PuppetBase):
-    pass
+    
+    def __init__(self, driver, puppet_id, profile_file=None, output_file=None):
+        super().__init__(driver, puppet_id, profile_file, output_file)
+        
+        # Passive params
+        self.watch_duration = 1
+        self.relevance_like = 2
+        self.relevance_follow = 3
 
 
 """

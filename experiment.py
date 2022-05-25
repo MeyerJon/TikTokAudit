@@ -20,6 +20,7 @@ def manual_setup(login=True):
         mostly for experimental/testing purposes
     """
     bot = setup_anon_puppet(DRIVER_PATH, profile_file="./profile_AV.json")
+    bot._id = "AVANON"
     bot.set_credentials("hku63202@mzico.com", "TTDelver PW")
     if login: bot.login_tiktok()
     return bot
@@ -50,7 +51,8 @@ if __name__ == "__main__":
 
     bot = manual_setup(login=True)
     time.sleep(3)
-    bot.browse_fyp(interact=False)
+    bot.pre_run_routine()
+    #bot.browse_fyp(interact=False)
 
     #bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
     #bot.pre_run_routine()    

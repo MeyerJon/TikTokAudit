@@ -2,10 +2,14 @@
     "tags": {
         "antivax" : 0.5,
         "antivaxx" : 0.5,
+        "antivaxxer": 0.25,
+        "antivaxer": 0.25,
         "antimask": 1,
         "avax": 0.5,
         "nopoke": 1,
+        "nopokeforme": 1,
         "nojab": 1,
+        "nojabforme": 1,
         "novaxclan": 0.5,
         "novax": 1,
         "novaxneeded": 1,
@@ -33,7 +37,13 @@
         "plandimic": 1,
         "nurembergcode": 1,
         "covid": 0.25,
-        "getvaccinated": -1
+        "covid19": 0.25,
+        "patriot": 0.25,
+        "controversial": 0.25,
+        "getvaccinated": -1,
+        "getvaxxed": -1,
+        "vaccineswork": -1,
+        "wearamask": -1
     },
     "creators": [
         "pennycandy8787",

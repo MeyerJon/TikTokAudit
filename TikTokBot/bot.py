@@ -105,13 +105,15 @@ class Bot:
             self.logger.error("Error while locating element by XPath.", exc_info=True)
             raise e
 
-    def _wait_el_by_xpath(self, path, time=5):
+    def _wait_el_by_xpath(self, path, time=5, verbose=True):
         """
             Returns element if found after waiting some time.
         """
         elem = None
         try:
             elem = WebDriverWait(self._driver, time).until(EC.presence_of_element_located((By.XPATH, path)))
+        except TimeoutException as e:
+            if verbose: self.logger.warning("Could not locate element %s", path)
         except Exception as e:
             self.logger.error("Error while waiting for element.", exc_info=True)
         return elem
@@ -145,7 +147,7 @@ class Bot:
         """
         tags = list()
         try:
-            desc_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]")
+            desc_el = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]", verbose=False)
             tag_els = desc_el.find_elements(by=By.CSS_SELECTOR, value='a') # Tags are links in description
             for t_e in tag_els:
                 tag_span = t_e.find_element(by=By.CSS_SELECTOR, value="strong") # Tags & mentions are encapsulated by <strong>
@@ -159,7 +161,7 @@ class Bot:
             Returns sound used in video.
         """
         try:
-            sound_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/h4/a")
+            sound_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/h4/a", verbose=False)
             return sound_el.text
         except Exception as e:
             self.logger.info("Could not locate sound element (%s)",self._driver.current_url)
@@ -169,7 +171,7 @@ class Bot:
             Returns username of the video's creator.
         """
         try:
-            return self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/a[2]/span[1]").text
+            return self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/a[2]/span[1]", verbose=False).text
         except Exception as e:
             self.logger.warning("Could not locate creator element (%s)", self._driver.current_url)
 
@@ -178,7 +180,7 @@ class Bot:
             Returns video's description (can be empty).
         """
         try:
-            desc_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]/span[1]")
+            desc_el = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]/span[1]", verbose=False)
             if desc_el is not None:
                 return desc_el.text
             else:
@@ -272,7 +274,20 @@ class Bot:
         except Exception as e:
             self.logger.error("Error while dismissing content warning.", exc_info=True)
 
-    
+    def close_modal_overlay(self):
+        """
+            TikTok sometimes shows a 'scrolling tutorial' overlay that intercepts all other clicks.
+            This method dismisses that overlay.
+        """
+        try:
+            overlay = WebDriverWait(self._driver, 4).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[class~="DivModalMask"]')))
+            overlay.click()
+        except TimeoutException:
+            pass
+        except Exception as e:
+            self.logger.error("Error while dismissing overlay.", exc_info=True)
+
+
     ### Internal behaviours ###
     def collect_open_video_info(self):
         """
@@ -463,13 +478,26 @@ class Bot:
         """
             Assuming a tiktok is being viewed, likes that tiktok.
         """
-        like_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]")
+        like_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]", verbose=False)
+        if like_btn is None:
+            # Fallback: video might not be in focus mode
+            like_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]", verbose=False)
+        if like_btn is None:
+            self.logger.warning("Could not like video - like button not found. (%s)", self._driver.current_url)
+            return
         # Check liked status based on color of icon
         # This isn't hugely stable, of course - hopefully tiktok keeps this color code for the duration of the experiment
         svg_icon = like_btn.find_element(By.CSS_SELECTOR, "svg")
         fill_col = svg_icon.get_attribute("fill")
-        rgba = re.findall(r'\d+', fill_col)
-        liked = rgba[0] >= 100 # Assume that if the heart icon is red, the post has been liked
+        liked = False
+        if fill_col == "#fff" or fill_col == "#161823":
+            liked = False # Icon is white or black
+        elif fill_col == "none":
+            liked = True # Icon is coloured using other element (filter or smth?)
+        else:
+            # Icon is filled using RGB
+            rgba = re.findall(r'\d+', fill_col)
+            liked = int(rgba[0]) >= 100 # Assume that if the heart icon is red, the post has been liked
         if like != liked:
             like_btn.click()
 
@@ -551,7 +579,8 @@ class Bot:
 
         # 'Continue with Google' button
         # Popup located in a different iframe
-        login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
+        login_frame = self._driver.switch_to.frame(WebDriverWait(self._driver, 5).until(EC.presence_of_element_located((By.XPATH, "//iframe"))))
+        #login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
         google_opt_btn = self._wait_el_by_xpath("/html/body/div[1]/div/div[1]/div/div[1]/div[2]/div[4]", time=8)
         if google_opt_btn is None:
             # Fallback in case the layout changes but the text on the button remains the same
@@ -586,7 +615,8 @@ class Bot:
         """
         # 'Continue with Twitter' button
         # Popup located in a different iframe
-        login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
+        login_frame = self._driver.switch_to.frame(WebDriverWait(self._driver, 5).until(EC.presence_of_element_located((By.XPATH, "//iframe"))))
+        #login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
         twitter_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[2]/div[1]/div/div/div[4]", time=8)
         if twitter_opt_btn is None:
             # Fallback in case the layout changes but the text on the button remains the same
@@ -627,6 +657,7 @@ class Bot:
         self._driver.get("http://tiktok.com")
         random_wait(3)
 
+        self.close_modal_overlay()
         self.close_cookie_banner()
 
         # Open the login popup
