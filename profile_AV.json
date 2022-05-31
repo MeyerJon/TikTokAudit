@@ -29,6 +29,7 @@
         "seekthetruth": 0.5,
         "vaccineadverseeffects": 1,
         "vaxinjury": 1,
+        "vaccineinjury": 1,
         "naturalimmunity": 0.5,
         "medicalfreedom": 0.5,
         "mediacontrol": 1,
@@ -42,6 +43,7 @@
         "controversial": 0.25,
         "getvaccinated": -1,
         "getvaxxed": -1,
+        "getvaccinatedyall": -1,
         "vaccineswork": -1,
         "wearamask": -1
     },
