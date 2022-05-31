@@ -161,7 +161,7 @@ class Bot:
             Returns sound used in video.
         """
         try:
-            sound_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/h4/a", verbose=False)
+            sound_el = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/h4/a", verbose=False)
             return sound_el.text
         except Exception as e:
             self.logger.info("Could not locate sound element (%s)",self._driver.current_url)
@@ -578,10 +578,19 @@ class Bot:
         """
 
         # 'Continue with Google' button
-        # Popup located in a different iframe
-        login_frame = self._driver.switch_to.frame(WebDriverWait(self._driver, 5).until(EC.presence_of_element_located((By.XPATH, "//iframe"))))
-        #login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
+        google_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[1]/div[1]/div/div/div[3]")
+        if google_opt_btn is None:
+            # Popup located in a different iframe
+            login_frame = None
+            try:
+                login_frame = WebDriverWait(self._driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe")))
+            except TimeoutException as e:
+                login_frame = self._wait_el_by_xpath("/html/body/div[1]/div/div[1]/div/div[1]/div[2]/div[5]")
+            if login_frame is None:
+                raise Exception("Could not locate login popup iframe. Cancelling login.")
+            self._driver.switch_to.frame(login_frame)
         google_opt_btn = self._wait_el_by_xpath("/html/body/div[1]/div/div[1]/div/div[1]/div[2]/div[4]", time=8)
+
         if google_opt_btn is None:
             # Fallback in case the layout changes but the text on the button remains the same
             google_opt_btn = self._wait_el_by_xpath('//div[contains(text(), "Continue with Google")]', time=8)
@@ -614,10 +623,18 @@ class Bot:
             Assuming the login popup is opened, continues by logging in via Twitter credentials
         """
         # 'Continue with Twitter' button
-        # Popup located in a different iframe
-        login_frame = self._driver.switch_to.frame(WebDriverWait(self._driver, 5).until(EC.presence_of_element_located((By.XPATH, "//iframe"))))
-        #login_frame = self._driver.switch_to.frame(self._driver.find_element(By.XPATH, '//iframe'))
-        twitter_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[2]/div[1]/div/div/div[4]", time=8)
+        twitter_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[1]/div[1]/div/div/div[4]")
+        if twitter_opt_btn is None:
+            # Popup located in a different iframe
+            login_frame = None
+            try:
+                login_frame = WebDriverWait(self._driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe")))
+            except TimeoutException as e:
+                login_frame = self._wait_el_by_xpath("/html/body/div[1]/div/div[1]/div/div[1]/div[2]/div[5]")
+            if login_frame is None:
+                raise Exception("Could not locate login popup iframe. Cancelling login.")
+            self._driver.switch_to.frame(login_frame)
+            twitter_opt_btn = self._wait_el_by_xpath("/html/body/div[8]/div[2]/div[2]/div[1]/div/div/div[4]", time=8)
         if twitter_opt_btn is None:
             # Fallback in case the layout changes but the text on the button remains the same
             twitter_opt_btn = self._wait_el_by_xpath('//div[contains(text(), "Continue with Twitter")]', time=8)
