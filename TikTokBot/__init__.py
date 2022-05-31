@@ -1,9 +1,19 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+import undetected_chromedriver as uc
 from TikTokBot.bot import Bot
 from TikTokBot.puppets import PuppetPassive, PuppetCasual, PuppetActive, PuppetBase
-import json
+import json, datetime
+
+
+### Private functionality ###
+
+def _default_outputfile(data_dir, puppet_id):
+    """
+        Returns the default filename for a given puppet's output.
+    """
+    return f"{data_dir}/{puppet_id}_{datetime.date.today()}_out.csv"
 
 
 ### Public functionality ###
@@ -79,22 +89,21 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
 
     # Set params
     data_dir = kwargs.get("data_dir", "./data")
-    outf = kwargs.get("output_file", f"{data_dir}/{puppet_id}_out.csv")
+    outf = kwargs.get("output_file", _default_outputfile(data_dir, puppet_id))
 
     user_dir_parent = kwargs.get("user_dir", "./users")
     user_dir = f"{user_dir_parent}/{puppet_id}"
 
     # Get session options
-    driver_service = Service(driver_path)
-    options = get_chrome_options(user_dir=user_dir, incognito=False)
+    #driver_service = Service(driver_path)
+    #options = get_chrome_options(user_dir=user_dir, incognito=False)
 
     # Open driver
     #driver = webdriver.Chrome(service=driver_service, options=options)
-    import undetected_chromedriver as uc
     ucoptions = uc.ChromeOptions()
     ucoptions.add_argument(f"--user-data-dir={user_dir}")
     ucoptions.add_argument("--mute-audio")
-    driver = uc.Chrome(options=ucoptions, version_main=99)
+    driver = uc.Chrome(options=ucoptions, version_main=102)
 
     # Make bot & configure
     puppet = PuppetBase(driver, puppet_id, output_file=outf)

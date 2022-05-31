@@ -1,7 +1,7 @@
 """
     Specific puppet implementations.
 """
-import random, time, json
+import random, time, json, traceback
 from TikTokBot.bot import Bot
 from TikTokBot.utils import random_wait
 
@@ -19,7 +19,7 @@ class PuppetBase(Bot):
         # Behavior-related parameters
         self.relevance_like = 0
         self.relevance_follow = 0
-        self.watch_duration = 0.2 # Fraction of TikTok duration
+        self.watch_duration = 0.3 # Fraction of TikTok duration
 
         # Interest data
         profile_file = profile_file or f"./profile_{puppet_id[:2]}.json"
@@ -175,16 +175,19 @@ class PuppetBase(Bot):
                 i += 1
                 self.write_vidinfo(v_d, header=(i==1))
 
-                # Watch video for required duration
-                req_duration = v_d.duration * self.watch_duration
-                random_wait(req_duration, sdev=0.25, min_t=req_duration*0.9)
+                # Check if video is at all relevant before committing
+                if self._vid_relevance(v_d) > 0:
+                    
+                    # Watch video for required duration
+                    req_duration = v_d.duration * self.watch_duration
+                    random_wait(req_duration, sdev=0.25, min_t=req_duration*0.9)
 
-                # Potentially like the video/follow the creator
-                if interact:
-                    if self.video_relevant(v_d):
-                        self.like_video()
-                    if self.creator_relevant(v_d.creator):
-                        self.follow_video()
+                    # Potentially like the video/follow the creator
+                    if interact:
+                        if self.video_relevant(v_d):
+                            self.like_video()
+                        if self.creator_relevant(v_d.creator):
+                            self.follow_video()
 
                 #print("Tags:", v_d.tags)
                 #print("Relevance:", self._vid_relevance(v_d))

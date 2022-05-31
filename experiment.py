@@ -56,5 +56,5 @@ if __name__ == "__main__":
 
     bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
     bot.login_tiktok()
-    #bot.pre_run_routine()    
-    bot.browse_fyp(n=3, interact=False)
+    bot.pre_run_routine(k = 5, likes=True)    
+    bot.browse_fyp(n=50, interact=True)
