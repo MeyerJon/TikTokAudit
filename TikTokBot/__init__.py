@@ -89,7 +89,12 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     options = get_chrome_options(user_dir=user_dir, incognito=False)
 
     # Open driver
-    driver = webdriver.Chrome(service=driver_service, options=options)
+    #driver = webdriver.Chrome(service=driver_service, options=options)
+    import undetected_chromedriver as uc
+    ucoptions = uc.ChromeOptions()
+    ucoptions.add_argument(f"--user-data-dir={user_dir}")
+    ucoptions.add_argument("--mute-audio")
+    driver = uc.Chrome(options=ucoptions, version_main=99)
 
     # Make bot & configure
     puppet = PuppetBase(driver, puppet_id, output_file=outf)

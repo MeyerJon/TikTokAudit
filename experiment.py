@@ -4,7 +4,7 @@ from selenium import webdriver
 import logging, time
 
 
-DRIVER_PATH = "./drivers/chromedriver"
+DRIVER_PATH = "./drivers/chromedriver-patched"
 CREDS_FILE = "./users/creds.json"
 
 
@@ -49,11 +49,12 @@ if __name__ == "__main__":
 
     logging.basicConfig(filename="./logs", filemode='w', format='%(asctime)s - [%(levelname)s] %(message)s', datefmt='%H:%M:%S')
 
-    bot = manual_setup(login=True)
-    time.sleep(3)
-    bot.pre_run_routine()
+    #bot = manual_setup(login=True)
+    #time.sleep(3)
+    #bot.pre_run_routine()
     #bot.browse_fyp(interact=False)
 
-    #bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
+    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
+    bot.login_tiktok()
     #bot.pre_run_routine()    
-   
+    bot.browse_fyp(n=3, interact=False)
