@@ -477,11 +477,23 @@ class Bot:
     def like_video(self, like=True):
         """
             Assuming a tiktok is being viewed, likes that tiktok.
+        """                                 
+        like_btn_paths = ["/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[1]",
+                          "/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]",
+                          "/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]"]
+                          
+        like_btn = None
+        for xpath in like_btn_paths:
+            like_btn = self._wait_el_by_xpath(xpath, verbose=False)
+            if like_btn is not None:
+                break
         """
+        # Old method
         like_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]", verbose=False)
         if like_btn is None:
             # Fallback: video might not be in focus mode
             like_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]", verbose=False)
+        """
         if like_btn is None:
             self.logger.warning("Could not like video - like button not found. (%s)", self._driver.current_url)
             return
@@ -679,6 +691,9 @@ class Bot:
 
         # Open the login popup
         login_btn = self._wait_el_by_xpath("/html/body/div[2]/div[1]/div/div[2]/button")
+        if login_btn is None:
+            self.logger.warn("Login button not found. Can't log in.")
+            return
         login_btn.click()
         random_wait(2.0, min_t=0.5)
 

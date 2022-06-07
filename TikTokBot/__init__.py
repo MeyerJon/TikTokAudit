@@ -6,6 +6,7 @@ from TikTokBot.bot import Bot
 from TikTokBot.puppets import PuppetPassive, PuppetCasual, PuppetActive, PuppetBase
 import json, datetime
 
+PUPPET_TYPES = [PuppetBase, PuppetPassive, PuppetCasual, PuppetActive]
 
 ### Private functionality ###
 
@@ -94,19 +95,23 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
     user_dir_parent = kwargs.get("user_dir", "./users")
     user_dir = f"{user_dir_parent}/{puppet_id}"
 
-    # Get session options
-    #driver_service = Service(driver_path)
-    #options = get_chrome_options(user_dir=user_dir, incognito=False)
-
     # Open driver
-    #driver = webdriver.Chrome(service=driver_service, options=options)
-    ucoptions = uc.ChromeOptions()
-    ucoptions.add_argument(f"--user-data-dir={user_dir}")
-    ucoptions.add_argument("--mute-audio")
-    driver = uc.Chrome(options=ucoptions, version_main=102)
+    driver = None
+    use_undetected_chromedriver = kwargs.get("use_undetected", True)
+    if use_undetected_chromedriver:
+        ucoptions = uc.ChromeOptions()
+        ucoptions.add_argument(f"--user-data-dir={user_dir}")
+        ucoptions.add_argument("--mute-audio")
+        driver = uc.Chrome(options=ucoptions, version_main=99)
+    else:
+        driver_service = Service(driver_path)
+        options = get_chrome_options(user_dir=user_dir, incognito=False)
+        driver = webdriver.Chrome(service=driver_service, options=options)
 
     # Make bot & configure
-    puppet = PuppetBase(driver, puppet_id, output_file=outf)
+    puppet_type = kwargs.get("puppet_type", 0) # 0 = Base, 1 = Passive, 2 = Casual, 3 = Active
+    puppet_type = PUPPET_TYPES[puppet_type]
+    puppet = puppet_type(driver, puppet_id, output_file=outf)
     puppet.set_data_dir(data_dir)
     puppet.set_credentials(cred_info["email"], cred_info["password"], platform=cred_info["platform"])
 

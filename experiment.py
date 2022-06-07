@@ -4,7 +4,7 @@ from selenium import webdriver
 import logging, time
 
 
-DRIVER_PATH = "./drivers/chromedriver-patched"
+DRIVER_PATH = "./drivers/chromedriver"
 CREDS_FILE = "./users/creds.json"
 
 
@@ -54,7 +54,9 @@ if __name__ == "__main__":
     #bot.pre_run_routine()
     #bot.browse_fyp(interact=False)
 
-    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1")
+    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV1", puppet_type=3, use_undetected=True)
+    # TODO: Only log in when necessary
     bot.login_tiktok()
-    bot.pre_run_routine(k = 5, likes=True)    
-    bot.browse_fyp(n=50, interact=True)
+    time.sleep(1)
+    bot.pre_run_routine(k=5, likes=True)    
+    #bot.browse_fyp(n=50, interact=True)

@@ -31,9 +31,6 @@ class PuppetBase(Bot):
         self.relevant_tags = self._profile['tags']
         self.relevant_creators = set(self._profile['creators'])
         self.relevant_sounds = set(self._profile['sounds'])
-
-        # Log creation of puppet
-        self.logger.info("Created puppet %s", self._id)
         
 
     # Config
@@ -93,7 +90,7 @@ class PuppetBase(Bot):
             urls = f.readlines()
         
         picks = random.sample(urls, k=k)
-        watchtime = 0.2 # Fraction of total time
+        watchtime = 1.2 # Fraction of total time
 
         for p in picks:
 
@@ -108,9 +105,15 @@ class PuppetBase(Bot):
 
             # Watch the video for the required time, then move on
             vid_dur = None
-            while vid_dur is None:
+            retries = 0
+            while vid_dur is None and retries < 10:
                 vid_dur = self.get_video_duration()
-            time.sleep(vid_dur * watchtime)
+            if vid_dur is not None:
+                print(f"Watching video for {vid_dur * watchtime}s.")
+                time.sleep(vid_dur * watchtime)
+            if retries >= 10:
+                self.logger.warn(f"Couldn't find video duration after {retries} attempts. ({self._driver.current_url})")
+                time.sleep(1)
 
             if likes:
                 self.like_video(like=True)
@@ -225,6 +228,9 @@ class PuppetPassive(PuppetBase):
         self.relevance_like = 2
         self.relevance_follow = 3
 
+        # Log creation of puppet
+        self.logger.info("Created passive puppet %s", self._id)
+
 
 """
     Casual puppet:
@@ -233,7 +239,17 @@ class PuppetPassive(PuppetBase):
         - Likes sufficiently relevant posts, occassionally follows relevant creators
 """
 class PuppetCasual(PuppetBase):
-    pass
+    
+    def __init__(self, driver, puppet_id, profile_file=None, output_file=None):
+        super().__init__(driver, puppet_id, profile_file, output_file)
+        
+        # Passive params
+        self.watch_duration = 2
+        self.relevance_like = 1
+        self.relevance_follow = 2
+
+        # Log creation of puppet
+        self.logger.info("Created casual puppet %s", self._id)
 
 
 """
@@ -243,4 +259,14 @@ class PuppetCasual(PuppetBase):
         - Likes all relevant posts, follows relevant creators   
 """
 class PuppetActive(PuppetBase):
-    pass
+    
+    def __init__(self, driver, puppet_id, profile_file=None, output_file=None):
+        super().__init__(driver, puppet_id, profile_file, output_file)
+        
+        # Passive params
+        self.watch_duration = 2
+        self.relevance_like = 0.5
+        self.relevance_follow = 1
+
+        # Log creation of puppet
+        self.logger.info("Created active puppet %s", self._id)
