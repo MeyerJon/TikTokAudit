@@ -58,10 +58,14 @@ class PuppetBase(Bot):
         self.relevance_follow = thresh
 
     def _vid_relevance(self, vidinfo):
-        r = sum([self.relevant_tags.get(t, 0) for t in vidinfo.tags])  # Score of tags
+        r = sum([self.relevant_tags.get(f"#{t.lower()}", 0) for t in vidinfo.tags])  # Score of tags
         r += (int(vidinfo.creator in self.relevant_creators) * 10)     # Flagged creators count for 10
         if vidinfo.sound is not None:
-            r += int(vidinfo.sound in self.relevant_sounds)            # Flagged sounds count too
+            # Flagged sounds count too
+            for s in self.relevant_sounds:
+                if vidinfo.sound.lower() in s.lower():
+                    r += 1
+                    break
         return r
 
     def video_relevant(self, vidinfo):

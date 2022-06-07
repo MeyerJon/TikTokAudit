@@ -54,7 +54,8 @@ if __name__ == "__main__":
     #bot.pre_run_routine()
     #bot.browse_fyp(interact=False)
 
-    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV3", puppet_type=3, use_undetected=True)
+    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "HS1", puppet_type=3, use_undetected=False)
+    bot.browse_fyp(interact=False)
     # TODO: Only log in when necessary
     time.sleep(600)
     bot.login_tiktok()
