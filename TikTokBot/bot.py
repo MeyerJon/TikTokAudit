@@ -507,7 +507,7 @@ class Bot:
         elif fill_col == "none":
             liked = True # Icon is coloured using other element (filter or smth?)
         else:
-            # Icon is filled using RGB
+            # Icon is filled using RGB (hopefully)
             rgba = re.findall(r'\d+', fill_col)
             liked = int(rgba[0]) >= 100 # Assume that if the heart icon is red, the post has been liked
         if like != liked:
@@ -671,6 +671,53 @@ class Bot:
         self._driver.switch_to.window(self._driver.window_handles[0])
 
 
+    def _login_via_facebook(self, creds):
+        """
+            Same as the above, but using Facebook credentials.
+        """
+        # 'Continue with Facebook' button 
+        fb_opt_btn = self._wait_el_by_xpath("/html/body/div[6]/div[2]/div[1]/div[1]/div/div/div[2]")
+        if fb_opt_btn is None:
+            # Popup located in a different iframe
+            login_frame = None
+            try:
+                login_frame = WebDriverWait(self._driver, 10).until(EC.presence_of_element_located((By.XPATH, "//iframe")))
+            except TimeoutException as e:
+                login_frame = self._wait_el_by_xpath("//html/body/div[5]/div[2]/div/iframe")
+            if login_frame is None:
+                raise Exception("Could not locate login popup iframe. Cancelling login.")
+            self._driver.switch_to.frame(login_frame)
+            fb_opt_btn = self._wait_el_by_xpath("/html/body/div[1]/div/div[1]/div/div[1]/div[2]/div[3]", time=8)
+        if fb_opt_btn is None:
+            # Fallback in case the layout changes but the text on the button remains the same
+            fb_opt_btn = self._wait_el_by_xpath('//div[contains(text(), "Continue with Facebook")]', time=8)
+        fb_opt_btn.click()
+        random_wait(1.0)
+
+        # Popup window is now open
+        self._driver.switch_to.window(self._driver.window_handles[-1]) # Last opened window is the Facebook login screen
+
+        # Dismiss cookie banner
+        cookie_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div/div/div/div/div[3]/button[1]")
+        cookie_btn.click()
+        
+        # Enter email
+        email_field = self._wait_el_by_xpath("/html/body/div/div[2]/div[1]/form/div/div[1]/div/input")
+        emulate_keystrokes(email_field, creds["email"])
+
+        # Enter password
+        pw_field = self._wait_el_by_xpath("/html/body/div/div[2]/div[1]/form/div/div[2]/div/input")
+        emulate_keystrokes(pw_field, creds["password"])
+
+        nxt_btn = self._wait_el_by_xpath("/html/body/div/div[2]/div[1]/form/div/div[3]/label[2]/input")
+        nxt_btn.click()
+        random_wait(3.0)
+
+        # Popup windows are automatically closed, switch back to be safe
+        self._driver.switch_to.window(self._driver.window_handles[0])
+
+
+
     def login_tiktok(self):
         """
             Logs into Tiktok. Only works if credentials have been set.
@@ -701,6 +748,8 @@ class Bot:
             self._login_via_google(creds)
         elif creds["platform"] == "Twitter":
             self._login_via_twitter(creds)
+        elif creds["platform"] == "Facebook":
+            self._login_via_facebook(creds)
 
     def anon_run(self, n=10, to_skip=None):
         """
