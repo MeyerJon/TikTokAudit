@@ -31,6 +31,7 @@ class PuppetBase(Bot):
         self.relevant_tags = self._profile['tags']
         self.relevant_creators = set(self._profile['creators'])
         self.relevant_sounds = set(self._profile['sounds'])
+        self.relevant_keywords = set(self._profile['keywords'])
         
 
     # Config
@@ -70,15 +71,13 @@ class PuppetBase(Bot):
 
     def video_relevant(self, vidinfo):
         """
-            For a given VideoInfo object, returns true
-            if the video is considered relevant enough for the puppet to like.
+            Returns true if video is relevant enough to be liked
         """ 
         return self._vid_relevance(vidinfo) >= self.relevance_like
 
-    def creator_relevant(self, creator):
+    def creator_relevant(self, vidinfo):
         """
-            For a given creator, returns true
-            if the given creator is considered relevant enough for the puppet to follow.
+            Returns true if creator of given video should be followed
         """
         return self._vid_relevance(vidinfo) >= self.relevance_follow
 
@@ -183,7 +182,7 @@ class PuppetBase(Bot):
                 self.write_vidinfo(v_d, header=(i==1))
 
                 # Check if video is at all relevant before committing
-                if self._vid_relevance(v_d) > 0:
+                if abs(self._vid_relevance(v_d)) > 0:
                     
                     # Watch video for required duration
                     req_duration = v_d.duration * self.watch_duration
@@ -193,7 +192,7 @@ class PuppetBase(Bot):
                     if interact:
                         if self.video_relevant(v_d):
                             self.like_video()
-                        if self.creator_relevant(v_d.creator):
+                        if self.creator_relevant(v_d):
                             self.follow_video()
 
                 #print("Tags:", v_d.tags)
@@ -214,6 +213,64 @@ class PuppetBase(Bot):
 
         self.logger.info("Finished run.")
 
+    def browse_query(self, n=10, interact=True):
+        """
+            Puppet will execute a query on a random keyword or tag, and browse the top n results.
+        """
+
+        pool = list(self.relevant_keywords) + list(self.relevant_tags.keys())
+        query = random.choice(pool)
+
+        self.execute_search(query)
+        random_wait(1, min_t=0.75)
+
+        # Open first
+        first_vid = None
+        timeout_count = 3
+        while first_vid is None and timeout_count > 0:
+            first_vid = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[2]/div[1]/div/div[2]/div[1]/div/div/a")
+            if first_vid is not None:
+                break
+            timeout_count -= 1
+        if first_vid is None:
+            self.logger.warning("Could not locate first search result. Aborting query.")
+            return
+        first_vid.click()
+        random_wait(1, min_t = 0.75)
+
+        # Browse as usual
+        for _ in range(n):
+            try:
+                self.check_run_paused()  # Check if run suspended
+                self.pause_for_captcha() # Pauses run if captcha popup opened
+                self.unstuck_video()
+                self.dismiss_content_warning() # Dismisses any 'disturbing content' warning
+
+                random_wait(0.2)
+                v_d = self.collect_open_video_info()
+
+                # Watch video
+                req_duration = 10#v_d.duration * self.watch_duration
+                random_wait(req_duration, sdev=0.25, min_t=req_duration*0.9)
+
+                # Potentially like the video/follow the creator
+                if interact:
+                    if self.video_relevant(v_d):
+                        self.like_video()
+                    if self.creator_relevant(v_d):
+                        self.follow_video()
+
+            except Exception as e:
+                traceback.print_exc()
+                self.logger.error("Exception while browsing query.", exc_info=True)
+                continue
+
+            # Move on
+            if not self.next_video():
+                # Could not continue, abort the run
+                self.logger.warning("Could not continue to next video, aborting run.")
+                return
+            random_wait(0.5, sdev=0.1, min_t=0.15)
 
 
 """

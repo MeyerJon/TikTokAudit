@@ -1,3 +1,4 @@
+from code import interact
 from TikTokBot import setup_anon_puppet, setup_puppet
 from TikTokBot.puppets import PuppetBase
 from selenium import webdriver
@@ -54,11 +55,13 @@ if __name__ == "__main__":
     #bot.pre_run_routine()
     #bot.browse_fyp(interact=False)
 
-    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "HS1", puppet_type=3, use_undetected=False)
-    #bot.browse_fyp(interact=False)
-    # TODO: Only log in when necessary
+    bot = setup_puppet(DRIVER_PATH, CREDS_FILE, "AV3", puppet_type=3, use_undetected=False)
     #time.sleep(600)
     #bot.login_tiktok()
-    time.sleep(4)
-    bot.pre_run_routine(k=5, likes=True)    
-    bot.browse_fyp(n=50, interact=True)
+    time.sleep(1)
+    #bot.pre_run_routine(k=5, likes=True)
+    time.sleep(1)
+    #bot.browse_fyp(n=1, interact=True)
+    bot._driver.get("http://tiktok.com")
+    time.sleep(2)
+    bot.browse_query(n=5, interact=True)

@@ -102,7 +102,7 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
         ucoptions = uc.ChromeOptions()
         ucoptions.add_argument(f"--user-data-dir={user_dir}")
         ucoptions.add_argument("--mute-audio")
-        driver = uc.Chrome(options=ucoptions, version_main=99)
+        driver = uc.Chrome(options=ucoptions, version_main=102)
     else:
         driver_service = Service(driver_path)
         options = get_chrome_options(user_dir=user_dir, incognito=False)

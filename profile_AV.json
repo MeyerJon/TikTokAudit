@@ -30,6 +30,7 @@
         "vaccineadverseeffects": 1,
         "vaxinjury": 1,
         "vaccineinjury": 1,
+        "vaxinjured": 1,
         "naturalimmunity": 0.5,
         "medicalfreedom": 0.5,
         "mediacontrol": 1,
@@ -37,10 +38,13 @@
         "pandimic": 1,
         "plandimic": 1,
         "nurembergcode": 1,
+        "vaxist": 1,
         "covid": 0.25,
         "covid19": 0.25,
         "patriot": 0.25,
         "controversial": 0.25,
+        "vaccine": 0.25,
+        "corona": 0.25,
         "getvaccinated": -1,
         "getvaxxed": -1,
         "getvaccinatedyall": -1,
@@ -89,5 +93,17 @@
         "original sound - Follow Spotify @ PiNK WRAWRII",
         "original sound - Tonya Wade",
         "original sound - Bobby"
+    ],
+    "keywords": [
+        "antivax",
+        "vaccine injury",
+        "nuremberg code",
+        "medical freedom",
+        "patriot",
+        "jab",
+        "nojab",
+        "vaccine conspiracy",
+        "adverse effects",
+        "vaccine chip"
     ]
 }

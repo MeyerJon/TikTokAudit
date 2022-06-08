@@ -118,6 +118,16 @@ class Bot:
             self.logger.error("Error while waiting for element.", exc_info=True)
         return elem
 
+    def _wait_el_by_xpaths(self, paths, time=5, verbose=True):
+        """
+            Tries finding an element using multiple specified XPaths. 
+        """
+        el = None
+        for p in paths:
+            el = self._wait_el_by_xpath(p, time, verbose)
+            if el is not None:
+                return el
+
     
     ### Data collection ###
     # Assume a video is open/in focus (for locating by XPath) unless stated otherwise
@@ -146,8 +156,12 @@ class Bot:
             Returns hashtags & mentions for the opened/currently viewed TikTok video.
         """
         tags = list()
-        try:
-            desc_el = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]", verbose=False)
+        try:        
+            desc_xpaths = ["/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]",
+                           "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[2]/div[1]"
+            ]
+                                      
+            desc_el = self._wait_el_by_xpaths(desc_xpaths, verbose=False)
             tag_els = desc_el.find_elements(by=By.CSS_SELECTOR, value='a') # Tags are links in description
             for t_e in tag_els:
                 tag_span = t_e.find_element(by=By.CSS_SELECTOR, value="strong") # Tags & mentions are encapsulated by <strong>
@@ -171,7 +185,10 @@ class Bot:
             Returns username of the video's creator.
         """
         try:
-            return self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/a[2]/span[1]", verbose=False).text
+            creator_el_xpaths = ["/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/a[2]/span[1]",
+                                 "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[1]/a[2]/span[1]"
+            ]                                
+            return self._wait_el_by_xpaths(creator_el_xpaths, verbose=False).text
         except Exception as e:
             self.logger.warning("Could not locate creator element (%s)", self._driver.current_url)
 
@@ -305,10 +322,18 @@ class Bot:
         duration = self.get_video_duration()
 
         # Temp? Like & comment counts
-        likes_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong")
-        likes = likes_el.text
+        likes_el_paths = [
+            "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong",
+            "/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong"
+        ]
+        likes_el = self._wait_el_by_xpaths(likes_el_paths)
+        likes = None
+        if likes_el is not None:
+            likes = likes_el.text
         comments_el = self._el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[2]/strong")
-        comments = comments_el.text
+        comments = None
+        if comments_el is not None:
+            comments = comments_el.text
 
         vid_data = VideoInfo(vid, creator, desc, tags, duration)
         vid_data.sound = self.get_video_sound()
@@ -344,9 +369,20 @@ class Bot:
                 # Assume there is no next video (the arrow hasn't loaded)
                 return False
             try:
-                down_btn = self._wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div[2]/div[3]/div[1]/button[3]")))
-                down_btn.click()
-                time.sleep(0.1)
+                down_btn_paths = ["/html/body/div[2]/div[2]/div[3]/div[1]/button[3]",
+                                  "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[1]/button[3]"
+                ]
+                down_btn = None
+                for p in down_btn_paths:
+                    down_btn = self._wait_el_by_xpaths(down_btn_paths, verbose=False)
+                    if down_btn is not None:
+                        break
+                if down_btn is not None:
+                    down_btn.click()
+                    time.sleep(0.2)
+                else:
+                    self.logger.warning("Could not locate down/next button.")
+                    timeout_count += 1 # Count this as a failed attempt
             except ElementNotInteractableException:
                 continue
             except TimeoutException:
@@ -355,7 +391,7 @@ class Bot:
             except Exception as e:
                 self.logger.error(f"Could not continue to next video ({self._driver.current_url})", exc_info=True)
                 return False
-            time.sleep(0.5)
+            time.sleep(0.2)
         return True
 
     def write_vidinfo(self, vi, header=False):
