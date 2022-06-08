@@ -502,14 +502,15 @@ class Bot:
         svg_icon = like_btn.find_element(By.CSS_SELECTOR, "svg")
         fill_col = svg_icon.get_attribute("fill")
         liked = False
-        if fill_col == "#fff" or fill_col == "#161823":
+        if fill_col == "#fff" or fill_col == "#161823" or fill_col == "currentColor":
             liked = False # Icon is white or black
         elif fill_col == "none":
             liked = True # Icon is coloured using other element (filter or smth?)
         else:
             # Icon is filled using RGB (hopefully)
             rgba = re.findall(r'\d+', fill_col)
-            liked = int(rgba[0]) >= 100 # Assume that if the heart icon is red, the post has been liked
+            if len(rgba):
+                liked = int(rgba[0]) >= 100 # Assume that if the heart icon is red, the post has been liked
         if like != liked:
             like_btn.click()
 

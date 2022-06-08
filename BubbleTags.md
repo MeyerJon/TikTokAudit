@@ -59,7 +59,7 @@ Note: Tags marked with ! are no longer available on TikTok
   - nationalism
   
   To check:
-  - cult45 (trumpsim ref?)
+  - cult45 (trumpsim ref?) -> Used by satirists
   - 45goat
   - putmefirst
   
@@ -83,11 +83,13 @@ Note: Tags marked with ! are no longer available on TikTok
   - american_radical
   - jynavesia
   - miss.mendoza
+  - tate.intellectual (mostly toxic hustle culture with misogyny mixed in)
+  - joshstone1973 (mostly 'harmless' conspiracy content, also some transphobia etc)
+  - calvinrobinhood
+  - altesreich
   
   To check:
   - libyan_nationalist
-  - tate.intellectual
-  - joshstone1973
   - lbnntv (Limitless Belief News; seems like a sensationalised, right-wing-oriented channel)
   - aprilseekstruth (conspiracy content?)
   - believeroftruth13 (conspiracy content?)
