@@ -98,6 +98,9 @@ class PuppetBase(Bot):
         for p in picks:
 
             self._driver.get(p)
+            random_wait(0.5, min_t=0.2)
+            self.pause_for_captcha()
+
             # Check if video available
             error_msg = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[1]/div/p[1]", verbose=False)
             if error_msg is not None:
@@ -166,9 +169,9 @@ class PuppetBase(Bot):
                 # - Add check to unpause videos that got paused automatically
 
                 # Collect statistics about this video
-                random_wait(0.1)
+                #random_wait(0.1)
+                time.sleep(0.1)
                 v_d = self.collect_open_video_info()
-                random_wait(0.1)
                 valid = v_d.valid()
 
                 if not valid:
@@ -209,7 +212,7 @@ class PuppetBase(Bot):
                 # Could not continue, abort the run
                 self.logger.warning("Could not continue to next video, aborting run.")
                 return
-            random_wait(0.5, sdev=0.1, min_t=0.15)
+            random_wait(0.4, sdev=0.075, min_t=0.1)
 
         self.logger.info("Finished run.")
 
@@ -222,13 +225,17 @@ class PuppetBase(Bot):
         query = random.choice(pool)
 
         self.execute_search(query)
-        random_wait(1, min_t=0.75)
+        random_wait(1.5, min_t=1)
 
         # Open first
         first_vid = None
         timeout_count = 3
         while first_vid is None and timeout_count > 0:
-            first_vid = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[2]/div[2]/div[1]/div/div[2]/div[1]/div/div/a")
+            first_vid_xpaths = ["/html/body/div[2]/div[2]/div[2]/div[2]/div[1]/div/div[2]/div[1]/div/div/a",
+                                "/html/body/div[2]/div[2]/div[2]/div[2]/div[1]/div/div[3]/div[1]/div/div/a",
+                                "/html/body/div[2]/div[2]/div[2]/div[2]/div[1]/div/div[3]"
+            ]
+            first_vid = self._wait_el_by_xpaths(first_vid_xpaths)
             if first_vid is not None:
                 break
             timeout_count -= 1

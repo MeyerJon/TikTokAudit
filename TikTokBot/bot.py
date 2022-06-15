@@ -149,7 +149,9 @@ class Bot:
             Returns the ID (19 digits) for the currently opened TikTok video.
         """
         #['https:', '', 'www.tiktok.com', '@user', 'video', '7068338808634215686?is_copy_url=1&is_from_webapp=v1']
-        return self._driver.current_url.split(sep="/")[5].split(sep='?')[0]
+        url_split = self._driver.current_url.split(sep="/")
+        id_ix = url_split.index("video") + 1
+        return url_split[id_ix].split(sep='?')[0]
 
     def get_video_tags(self):
         """
@@ -322,11 +324,13 @@ class Bot:
         duration = self.get_video_duration()
 
         # Temp? Like & comment counts
+        # Taken out to speed up video info collection
+        """
         likes_el_paths = [
             "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong",
             "/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong"
         ]
-        likes_el = self._wait_el_by_xpaths(likes_el_paths)
+        likes_el = self._wait_el_by_xpaths(likes_el_paths, verbose=False)
         likes = None
         if likes_el is not None:
             likes = likes_el.text
@@ -334,11 +338,12 @@ class Bot:
         comments = None
         if comments_el is not None:
             comments = comments_el.text
+        """
 
         vid_data = VideoInfo(vid, creator, desc, tags, duration)
         vid_data.sound = self.get_video_sound()
-        vid_data.likes = likes
-        vid_data.comments = comments
+        #vid_data.likes = likes
+        #vid_data.comments = comments
         return vid_data
 
     def prev_video(self):
@@ -515,6 +520,7 @@ class Bot:
             Assuming a tiktok is being viewed, likes that tiktok.
         """                                 
         like_btn_paths = ["/html/body/div[2]/div[2]/div[2]/div[1]/div[1]/div/div[2]/div[2]/button[1]",
+                          "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]"
                           "/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]",
                           "/html/body/div[2]/div[2]/div[2]/div[1]/div[3]/div/div[1]/div[3]/button[1]"]
                           
@@ -554,7 +560,9 @@ class Bot:
         """
             Assuming a tiktok is being viewed, follows the creator.
         """
-        follow_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/button")
+        follow_btn_paths = ["/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[1]/button",
+                            "/html/body/div[2]/div[2]/div[3]/div[2]/div[1]/button"]
+        follow_btn = self._wait_el_by_xpaths(follow_btn_paths)
         if follow_btn is None:
             # Fallback: look for a button with some 'StyledFollowButton' class
             follow_btn = WebDriverWait(self._driver, 3).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[class~="StyledFollowButton"]')))

@@ -20,6 +20,7 @@
         "pureblood": 0.5,
         "nomask": 1,
         "unmask": 1,
+        "unmasked": 1,
         "unmaskourkids": 1,
         "unmaskourchildren": 1,
         "unvaccinated": 1,
