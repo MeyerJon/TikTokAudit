@@ -326,7 +326,7 @@ class Bot:
             "/html/body/div[2]/div[2]/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong",
             "/html/body/div[2]/div[2]/div[3]/div[2]/div[2]/div[2]/div[1]/div[1]/button[1]/strong"
         ]
-        likes_el = self._wait_el_by_xpaths(likes_el_paths)
+        likes_el = self._wait_el_by_xpaths(likes_el_paths, verbose=False)
         likes = None
         if likes_el is not None:
             likes = likes_el.text
@@ -736,7 +736,9 @@ class Bot:
 
         # Dismiss cookie banner
         cookie_btn = self._wait_el_by_xpath("/html/body/div[2]/div[2]/div/div/div/div/div[3]/button[1]")
-        cookie_btn.click()
+        if cookie_btn is not None:
+            cookie_btn.click()
+            random_wait(0.5)
         
         # Enter email
         email_field = self._wait_el_by_xpath("/html/body/div/div[2]/div[1]/form/div/div[1]/div/input")
@@ -748,7 +750,7 @@ class Bot:
 
         nxt_btn = self._wait_el_by_xpath("/html/body/div/div[2]/div[1]/form/div/div[3]/label[2]/input")
         nxt_btn.click()
-        random_wait(3.0)
+        random_wait(2.0)
 
         # Popup windows are automatically closed, switch back to be safe
         self._driver.switch_to.window(self._driver.window_handles[0])

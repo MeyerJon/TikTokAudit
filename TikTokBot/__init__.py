@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.options import Options
 import undetected_chromedriver as uc
 from TikTokBot.bot import Bot
 from TikTokBot.puppets import PuppetPassive, PuppetCasual, PuppetActive, PuppetBase
-import json, datetime
+import json, datetime, sys
 
 PUPPET_TYPES = [PuppetBase, PuppetPassive, PuppetCasual, PuppetActive]
 
@@ -102,6 +102,9 @@ def setup_puppet(driver_path, creds_file, puppet_id, **kwargs):
         ucoptions = uc.ChromeOptions()
         ucoptions.add_argument(f"--user-data-dir={user_dir}")
         ucoptions.add_argument("--mute-audio")
+        if sys.platform == "linux":
+            # Fix so the program uses Chrome instead of Chromium if both are installed
+            ucoptions.binary_location = "/usr/bin/google-chrome"
         driver = uc.Chrome(options=ucoptions, version_main=102)
     else:
         driver_service = Service(driver_path)
