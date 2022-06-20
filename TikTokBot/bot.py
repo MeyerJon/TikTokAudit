@@ -580,8 +580,8 @@ class Bot:
         """
         search_field = None
         try:
-            search_field = WebDriverWait(self._driver, 3).until(EC.presence_of_element_located((By.NAME, 'q')))
-        except TimeoutError:
+            search_field = WebDriverWait(self._driver, 10).until(EC.presence_of_element_located((By.NAME, 'q')))
+        except TimeoutException:
             self.logger.warning("Could not execute search - searchbar not found.")
         
         if search_field is not None:
